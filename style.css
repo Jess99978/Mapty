@@ -86,9 +86,22 @@ a:visited {
 .workout__title {
   font-size: 1.7rem;
   font-weight: 600;
-  grid-column: 1 / -1;
+  grid-column: 1 / 3;
 }
-
+.workout__control{
+  display: flex;
+  grid-column: 4/-1;
+  padding-left: 2rem;
+  justify-content: space-between;
+  align-items: center;
+}
+.workout__btn--edit,.workout__btn--delete{
+  opacity: 0.2;
+  transition: 0.3s ease-in-out;
+}
+.workout__btn--edit:hover,.workout__btn--delete:hover{
+  opacity: 1;
+}
 .workout__details {
   display: flex;
   align-items: baseline;
