@@ -10,7 +10,6 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -62,23 +61,27 @@
             />
           </div>
           <div class="form__row form__row--hidden">
-            <label class="form__label">累積海拔</label>
+            <label class="form__label">海拔高度</label>
             <input
               class="form__input form__input--elevation"
               placeholder="公尺"
             />
           </div>
-          <button class="form__btn">OK</button>
+          <button class="form__btn form__btn--hidden">OK</button>
+          <div class="form__btn--group hidden">
+            <button class="form__btn form__btn--confirm" type="button">確認修改</button>
+            <button class="form__btn form__btn--cancel" type="button">取消</button>
+          </div>
         </form>
-
+        <!-- 
         <li class="workout workout--running" data-id="1234567890">
           <h2 class="workout__title">Running on April 14</h2>
           <div class="workout__control">
             <div class="workout__btn--edit">
-              <img src="/image/edit.svg" alt="" />
+              <img src="/image/edit.svg" alt="edit" />
             </div>
             <div class="workout__btn--delete">
-              <img src="/image/delete.svg" alt="" />
+              <img src="/image/delete.svg" alt="delete" />
             </div>
           </div>
           <div class="workout__details">
@@ -133,10 +136,11 @@
             <span class="workout__value">223</span>
             <span class="workout__unit">m</span>
           </div>
-        </li>
+        </li> -->
       </ul>
     </div>
 
     <div id="map"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>

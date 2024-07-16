@@ -136,7 +136,7 @@ a:visited {
   gap: 0.5rem 2.5rem;
 
   /* Match height and activity boxes */
-  height: 9.25rem;
+  /* height: 9.25rem; */
   transition: all 0.5s, transform 1ms;
 }
 
@@ -178,11 +178,37 @@ a:visited {
   outline: none;
   background-color: #fff;
 }
-
-.form__btn {
+.form__btn{
+padding-inline: 0.75rem;
+padding-block: 0.6rem;
+border-radius: 5px;
+border: none;
+box-shadow: 0,2,8px rgba(0,0,0,0.25);
+color: #fff;
+cursor: pointer;
+transition: 0.3s ease-in-out;
+}
+.form__btn:hover{
+  opacity: 0.85;
+}
+.form__btn--hidden {
   display: none;
 }
-
+.form__btn--group{
+  display: flex;
+  gap: 2rem;
+  grid-column: 2 / -1;
+  margin-top: 1rem;
+}
+.form__btn--group.hidden{
+  display: none;
+}
+.form__btn--confirm{
+  background:#2b827d;
+}
+.form__btn--cancel{
+  background: #7e7e7e;
+}
 /* MAP */
 #map {
   flex: 1;
@@ -211,4 +237,19 @@ a:visited {
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+/* sweetAlert */
+.swal2-modal{
+  padding: 3rem;
+  font-size:1.3rem;
+  font-weight: 500;
+}
+.swal2-styled{
+  font-size: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  
+}
+.swal2-confirm{
+  background: #c23f21;
 }
