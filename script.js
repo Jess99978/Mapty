@@ -61,13 +61,7 @@ class App {
   #workoutEl;
   #workoutObj;
   #newWorkoutObj;
-  // 驗證表單數據合理性（需為數字，且不可小於 0)
-  #isValidNum = (...inputs) => {
-    return inputs.every((num) => !isNaN(num));
-  };
-  #isPositiveNum = (...inputs) => {
-    return inputs.every((num) => num > 0);
-  };
+
   constructor() {
     this._getPosition();
     this._getLocalStorage();
@@ -135,6 +129,49 @@ class App {
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
   }
+  _validateFormInputs() {
+        const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+    // 驗證表單數據合理性（需為數字，且不可小於 0)
+    const isValidNum = (...inputs) => {
+      return inputs.every((num) => !isNaN(num));
+    };
+    const isPositiveNum = (...inputs) => {
+      return inputs.every((num) => num > 0);
+    };
+    if (type === "running") {
+      const cadence = +inputCadence.value;
+      if (
+        !isValidNum(distance, duration, cadence) ||
+        !isPositiveNum(distance, duration, cadence)
+      ) {
+        Swal.fire({
+          title: "請輸入大於 0 的數字",
+          icon: "warning",
+        });
+        return false;
+      } else {
+        return true
+      }
+    }
+    if (type === "cycling") {
+      const elev = +inputElevation.value;
+      if (
+        !isValidNum(distance, duration, elev) ||
+        !isPositiveNum(distance, duration)
+      ) {
+       Swal.fire({
+         title: "請輸入大於 0 的數字",
+         text: "(海拔高度可以為負)",
+         icon: "warning",
+       });
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
   _editWorkout(e) {
     if (e.target.classList.contains("workout__btn--edit")) {
       form.classList.remove("hidden");
@@ -146,6 +183,7 @@ class App {
         .querySelector(".form__btn--group--create")
         .classList.add("hidden");
       const data = this.#workoutObj;
+      console.log(this.#workoutObj)
       // 讀取舊的資料呈現至表單
       inputDistance.value = data.distance;
       inputDuration.value = data.duration;
@@ -194,31 +232,13 @@ class App {
   }
   _updateWorkout(e) {
     const data = this.#workoutObj;
+    this._validateFormInputs();
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
-    // !! 之後可以把驗證的部分獨立成一個函數
-    // 若使用者更新的是 running 物件
-    if (data.type === "running") {
-      const cadence = +inputCadence.value;
-      if (
-        !this.#isValidNum(distance, duration, cadence) ||
-        !this.#isPositiveNum(distance, duration, cadence)
-      ) {
-        alert("請輸入大於 0 的數字");
-        return;
-      }
-    }
-    if (data.type === "cycling") {
-      const elev = +inputElevation.value;
-      if (
-        !this.#isValidNum(distance, duration, elev) ||
-        !this.#isPositiveNum(distance, duration)
-      ) {
-        alert("請輸入數字");
-        return;
-      }
-    }
+
+        this._validateFormInputs();
+        if (!this._validateFormInputs()) return;
     // 從 localStorage 取得要更新的資料
     const oldArr = JSON.parse(localStorage.getItem("workouts"));
     const oldObj = oldArr.find((d) => d.id === this.#workoutObj.id);
@@ -231,7 +251,7 @@ class App {
     if (oldObj.cadence) {
       oldObj.cadence = +inputCadence.value;
     }
-    if (oldObj.elev) {
+    if (oldObj.elev !== null) {
       oldObj.elev = +inputElevation.value;
     }
     const newArr = oldArr;
@@ -261,10 +281,12 @@ class App {
     if (workout.cadence) {
       const { cadence } = workout;
       newData.push(cadence);
+      console.log(newData)
     }
-    if (workout.elev) {
+    if (workout.elev !== null) {
       const { elev } = workout;
       newData.push(elev);
+      console.log(newData)
     }
     workoutValue.forEach((w, i) => {
       w.textContent = newData[i];
@@ -285,7 +307,7 @@ class App {
             icon: "success",
             title: "已成功刪除",
             showConfirmButton: false,
-            timer: 1200,
+            timer: 1800,
           });
         }
       });
@@ -313,31 +335,18 @@ class App {
     const duration = +inputDuration.value;
     const { lat, lng } = this.#clickLocation.latlng;
     let workout;
-
-    // 若使用者選取的是 running，建立新物件
-    if (type === "running") {
-      const cadence = +inputCadence.value;
-      if (
-        !this.#isValidNum(distance, duration, cadence) ||
-        !this.#isPositiveNum(distance, duration, cadence)
-      ) {
-        alert("請輸入大於 0 的數字");
-        return;
+    this._validateFormInputs();
+    if (!this._validateFormInputs()) return;
+      if (type === "running") {
+        // 若使用者選取的是 running，建立新物件
+        const cadence = +inputCadence.value;
+        workout = new Running(distance, duration, [lat, lng], cadence);
+        this.#workout.push(workout);
+        console.log(workout);
       }
-      workout = new Running(distance, duration, [lat, lng], cadence);
-      this.#workout.push(workout);
-      console.log(workout);
-    }
     // 若使用者選取的是 cycling，建立新物件
     if (type === "cycling") {
       const elev = +inputElevation.value;
-      if (
-        !this.#isValidNum(distance, duration, elev) ||
-        !this.#isPositiveNum(distance, duration)
-      ) {
-        alert("請輸入大於 0 的數字");
-        return;
-      }
       workout = new Cycling(distance, duration, [lat, lng], elev);
       this.#workout.push(workout);
     }
