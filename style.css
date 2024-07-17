@@ -179,7 +179,7 @@ a:visited {
   background-color: #fff;
 }
 .form__btn{
-padding-inline: 0.75rem;
+padding-inline: 1rem;
 padding-block: 0.6rem;
 border-radius: 5px;
 border: none;
@@ -208,6 +208,10 @@ transition: 0.3s ease-in-out;
 }
 .form__btn--cancel{
   background: #7e7e7e;
+}
+.form__btn--submit{
+  background:#2b827d;
+  margin-left: auto;
 }
 /* MAP */
 #map {

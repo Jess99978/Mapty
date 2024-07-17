@@ -51,13 +51,13 @@ const btnEdit = document.querySelector(".workout__btn--edit");
 const btnDelete = document.querySelector(".workout__btn--delete");
 const btnEditConfirm = document.querySelector(".form__btn--confirm");
 const btnEditCancel = document.querySelector(".form__btn--cancel");
+const btnCreateSubmit = document.querySelector(".form__btn--submit");
 
 class App {
   #map;
   #clickLocation;
   #workout = [];
   #zoom = 13;
-  #shouldPreventDefault = false;
   #workoutEl;
   #workoutObj;
   #newWorkoutObj;
@@ -73,11 +73,15 @@ class App {
     this._getLocalStorage();
     // event handler
     //   使用鍵盤 enter 送出表單
-    form.addEventListener("submit", this._newWorkout.bind(this));
+    form.addEventListener("submit", (e) => e.preventDefault());
+    btnCreateSubmit.addEventListener("click", this._newWorkout.bind(this));
     inputType.addEventListener("change", this._toggleElevationField);
     containerWorkouts.addEventListener("click", this._moveToMarker.bind(this));
     containerWorkouts.addEventListener("click", this._editWorkout.bind(this));
-    containerWorkouts.addEventListener("click", this._showDeleteModal.bind(this));
+    containerWorkouts.addEventListener(
+      "click",
+      this._showDeleteModal.bind(this)
+    );
     btnEditConfirm.addEventListener("click", this._updateWorkout.bind(this));
     btnEditCancel.addEventListener("click", this._hideForm);
   }
@@ -96,19 +100,15 @@ class App {
     const coords = [latitude, longitude];
     this.#map = L.map("map").setView(coords, this.#zoom);
 
-    // console.log(
-    //   `https://www.google.com.tw/maps/@${latitude},${longitude},16z?entry=ttu`
-    // );
+    console.log(
+      `https://www.google.com.tw/maps/@${latitude},${longitude},16z?entry=ttu`
+    );
 
     L.tileLayer("https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
     this.#map.on("click", this._showForm.bind(this));
-    // ? this.#map.on("click", () => {
-    //   this.#shouldPreventDefault = false;
-    //   console.log(this.#shouldPreventDefault)
-    // });
     this.#workout.forEach((el) => {
       this._renderWorkoutMarker(el);
     });
@@ -116,7 +116,10 @@ class App {
   _showForm(e) {
     this.#clickLocation = e;
     form.classList.remove("hidden");
-    document.querySelector(".form__btn--group").classList.add("hidden");
+    document.querySelector(".form__btn--group--edit").classList.add("hidden");
+    document
+      .querySelector(".form__btn--group--create")
+      .classList.remove("hidden");
     inputDistance.focus();
     inputType.disabled = false;
     inputDistance.value =
@@ -134,10 +137,14 @@ class App {
   }
   _editWorkout(e) {
     if (e.target.classList.contains("workout__btn--edit")) {
-      e.preventDefault();
       form.classList.remove("hidden");
       inputDistance.focus();
-      document.querySelector(".form__btn--group").classList.remove("hidden");
+      document
+        .querySelector(".form__btn--group--edit")
+        .classList.remove("hidden");
+      document
+        .querySelector(".form__btn--group--create")
+        .classList.add("hidden");
       const data = this.#workoutObj;
       // 讀取舊的資料呈現至表單
       inputDistance.value = data.distance;
@@ -269,7 +276,7 @@ class App {
         title: "你確定要刪除這項紀錄嗎?",
         showCancelButton: true,
         confirmButtonText: "確定",
-        cancelButtonText:"取消",
+        cancelButtonText: "取消",
       }).then((result) => {
         if (result.isConfirmed) {
           this._deleteWorkout();
@@ -280,92 +287,78 @@ class App {
             showConfirmButton: false,
             timer: 1200,
           });
-        } 
+        }
       });
-     }
+    }
   }
   _deleteWorkout() {
     // 從 localStorage 取得要更新的資料
     const oldArr = JSON.parse(localStorage.getItem("workouts"));
     const oldObj = oldArr.find((d) => d.id === this.#workoutObj.id);
-    console.log(oldArr)
+    console.log(oldArr);
     console.log(oldObj);
-    const newArr = oldArr.filter(obj => obj !== oldObj);
-    console.log(newArr)
-    localStorage.setItem("workouts", JSON.stringify(newArr))
+    const newArr = oldArr.filter((obj) => obj !== oldObj);
+    console.log(newArr);
+    localStorage.setItem("workouts", JSON.stringify(newArr));
     // 刪除該項運動的 DOM 元素
     this.#workoutEl.remove();
     // 用新陣列重新渲染 map
-     newArr.forEach((el) => {
-       this._renderWorkoutMarker(el);
-     });
-  }
-  _preventDefault(e) {
-    if (this.#shouldPreventDefault) {
-      // e.preventDefault();
-      console.log(this.#shouldPreventDefault);
-    }
+    newArr.forEach((el) => {
+      this._renderWorkoutMarker(el);
+    });
   }
   _newWorkout(e) {
-    // this.#shouldPreventDefault = false;
-    // console.log(this.#shouldPreventDefault);
-    // if (this.#shouldPreventDefault) {
-    //   e.preventDefault();
-    // }
-    // 取得表單內的數據
-    e.preventDefault();
-    
-          const type = inputType.value;
+    const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
     const { lat, lng } = this.#clickLocation.latlng;
     let workout;
 
-  // 若使用者選取的是 running，建立新物件
-  if (type === "running") {
-    const cadence = +inputCadence.value;
-    if (
-      !this.#isValidNum(distance, duration, cadence) ||
-      !this.#isPositiveNum(distance, duration, cadence)
-    ) {
-      alert("請輸入大於 0 的數字");
-      return;
+    // 若使用者選取的是 running，建立新物件
+    if (type === "running") {
+      const cadence = +inputCadence.value;
+      if (
+        !this.#isValidNum(distance, duration, cadence) ||
+        !this.#isPositiveNum(distance, duration, cadence)
+      ) {
+        alert("請輸入大於 0 的數字");
+        return;
+      }
+      workout = new Running(distance, duration, [lat, lng], cadence);
+      this.#workout.push(workout);
+      console.log(workout);
     }
-    workout = new Running(distance, duration, [lat, lng], cadence);
-    this.#workout.push(workout);
+    // 若使用者選取的是 cycling，建立新物件
+    if (type === "cycling") {
+      const elev = +inputElevation.value;
+      if (
+        !this.#isValidNum(distance, duration, elev) ||
+        !this.#isPositiveNum(distance, duration)
+      ) {
+        alert("請輸入大於 0 的數字");
+        return;
+      }
+      workout = new Cycling(distance, duration, [lat, lng], elev);
+      this.#workout.push(workout);
+    }
+    // 將新物件儲存至 workout array
+    // console.log(this.#workout);
+    // 渲染 workout array 的內容至地圖中
+    console.log(this.#workout);
     console.log(workout);
-  }
-  // 若使用者選取的是 cycling，建立新物件
-  if (type === "cycling") {
-    const elev = +inputElevation.value;
-    if (
-      !this.#isValidNum(distance, duration, elev) ||
-      !this.#isPositiveNum(distance, duration)
-    ) {
-      alert("請輸入大於 0 的數字");
-      return;
-    }
-    workout = new Cycling(distance, duration, [lat, lng], elev);
-    this.#workout.push(workout);
-  }
-  // 將新物件儲存至 workout array
-  // console.log(this.#workout);
-  // 渲染 workout array 的內容至地圖中
-  console.log(this.#workout);
-  console.log(workout);
-  this._renderWorkoutMarker(workout);
-  // 渲染 workout array 的內容至列表中
-  this._renderWorkoutList(workout);
-  console.log(this.#workout);
-  console.log(workout);
-  // 清空欄位內容、隱藏表單
-  inputDistance.value =
-    inputDuration.value =
-    inputCadence.value =
-    inputElevation.value =
-      "";
-  this._hideForm();
-  //   將新創建的運動數據儲存至 localStorage
+    this._renderWorkoutMarker(workout);
+    // 渲染 workout array 的內容至列表中
+    this._renderWorkoutList(workout);
+    console.log(this.#workout);
+    console.log(workout);
+    // 清空欄位內容、隱藏表單
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        "";
+    this._hideForm();
+    //   將新創建的運動數據儲存至 localStorage
     this._setLocalStorage();
   }
 
