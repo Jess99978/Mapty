@@ -183,7 +183,6 @@ class App {
         .querySelector(".form__btn--group--create")
         .classList.add("hidden");
       const data = this.#workoutObj;
-      console.log(this.#workoutObj)
       // 讀取舊的資料呈現至表單
       inputDistance.value = data.distance;
       inputDuration.value = data.duration;
@@ -220,14 +219,6 @@ class App {
           inputElevation.value = this.#newWorkoutObj.elev;
         }
       }
-
-      // ?表單中正在修改以外的資料都加上透明度(點擊確認或取消時透明度回到 1（其他的運動功能禁用?）)
-      // const siblings = [...this.#workoutEl.parentNode.children].filter(
-      //   (el) => el !== this.#workoutEl && !el.classList.contains("form")
-      // );
-      // console.log(siblings)
-      // // siblings.style.opacity = "0.3";
-      // siblings.forEach(s => s.style.opacity = 0.3)
     }
   }
   _updateWorkout(e) {
@@ -370,7 +361,6 @@ class App {
     //   將新創建的運動數據儲存至 localStorage
     this._setLocalStorage();
   }
-
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
