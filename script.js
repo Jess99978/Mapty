@@ -85,7 +85,11 @@ class App {
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
         function () {
-          alert("無法取得您當前的位置");
+         Swal.fire({
+           title: "無法存取您當前的位置",
+          text:"（請檢查瀏覽器權限設置）",
+           icon: "warning",
+         });
         }
       );
   }
