@@ -384,8 +384,8 @@ class App {
     }">
           <h2 class="workout__title">${workout.description}</h2>
                     <div class="workout__control">
-            <div class=""><img src="/image/edit.svg" alt="edit" class="workout__btn--edit"></div>
-            <div class=""><img src="/image/delete.svg" alt="delete" class="workout__btn--delete"></div>
+            <div class=""><img src="image/edit.svg" alt="edit" class="workout__btn--edit"></div>
+            <div class=""><img src="image/delete.svg" alt="delete" class="workout__btn--delete"></div>
           </div>
           <div class="workout__details">
             <span class="workout__icon">${
