@@ -57,7 +57,7 @@ class App {
   #map;
   #clickLocation;
   #workout = [];
-  #zoom = 13;
+  #zoom = 14;
   #workoutEl;
   #workoutObj;
   #newWorkoutObj;
@@ -66,18 +66,20 @@ class App {
     this._getPosition();
     this._getLocalStorage();
     // event handler
-    //   使用鍵盤 enter 送出表單
+    //   阻止使用鍵盤 enter 送出表單（因為表單影響新增和編輯兩種操作，設置為分別用點擊觸發）
+    // 如果調用的函數中有使用 this，要用 bind 重新設定指向，不然會錯誤指向事件監聽器中的 this (觸發事件的元素)
     form.addEventListener("submit", (e) => e.preventDefault());
     btnCreateSubmit.addEventListener("click", this._newWorkout.bind(this));
+    btnEditConfirm.addEventListener("click", this._updateWorkout.bind(this));
+    btnEditCancel.addEventListener("click", this._hideForm);
     inputType.addEventListener("change", this._toggleElevationField);
+    // 利用 Event delegation 來綁定動態產生的元素
     containerWorkouts.addEventListener("click", this._moveToMarker.bind(this));
     containerWorkouts.addEventListener("click", this._editWorkout.bind(this));
     containerWorkouts.addEventListener(
       "click",
       this._showDeleteModal.bind(this)
     );
-    btnEditConfirm.addEventListener("click", this._updateWorkout.bind(this));
-    btnEditCancel.addEventListener("click", this._hideForm);
   }
   _getPosition() {
     // 用 geolocation API 取得當前位置
@@ -85,11 +87,11 @@ class App {
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
         function () {
-         Swal.fire({
-           title: "無法存取您當前的位置",
-          text:"（請檢查瀏覽器權限設置）",
-           icon: "warning",
-         });
+          Swal.fire({
+            title: "無法存取您當前的位置",
+            text: "（請檢查瀏覽器權限設置）",
+            icon: "warning",
+          });
         }
       );
   }
@@ -134,7 +136,7 @@ class App {
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
   }
   _validateFormInputs() {
-        const type = inputType.value;
+    const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
     // 驗證表單數據合理性（需為數字，且不可小於 0)
@@ -156,7 +158,7 @@ class App {
         });
         return false;
       } else {
-        return true
+        return true;
       }
     }
     if (type === "cycling") {
@@ -165,11 +167,11 @@ class App {
         !isValidNum(distance, duration, elev) ||
         !isPositiveNum(distance, duration)
       ) {
-       Swal.fire({
-         title: "請輸入大於 0 的數字",
-         text: "(海拔高度可以為負)",
-         icon: "warning",
-       });
+        Swal.fire({
+          title: "請輸入大於 0 的數字",
+          text: "(海拔高度可以為負)",
+          icon: "warning",
+        });
         return false;
       } else {
         return true;
@@ -232,8 +234,8 @@ class App {
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
 
-        this._validateFormInputs();
-        if (!this._validateFormInputs()) return;
+    this._validateFormInputs();
+    if (!this._validateFormInputs()) return;
     // 從 localStorage 取得要更新的資料
     const oldArr = JSON.parse(localStorage.getItem("workouts"));
     const oldObj = oldArr.find((d) => d.id === this.#workoutObj.id);
@@ -276,12 +278,12 @@ class App {
     if (workout.cadence) {
       const { cadence } = workout;
       newData.push(cadence);
-      console.log(newData)
+      console.log(newData);
     }
     if (workout.elev !== null) {
       const { elev } = workout;
       newData.push(elev);
-      console.log(newData)
+      console.log(newData);
     }
     workoutValue.forEach((w, i) => {
       w.textContent = newData[i];
@@ -332,13 +334,13 @@ class App {
     let workout;
     this._validateFormInputs();
     if (!this._validateFormInputs()) return;
-      if (type === "running") {
-        // 若使用者選取的是 running，建立新物件
-        const cadence = +inputCadence.value;
-        workout = new Running(distance, duration, [lat, lng], cadence);
-        this.#workout.push(workout);
-        console.log(workout);
-      }
+    if (type === "running") {
+      // 若使用者選取的是 running，建立新物件
+      const cadence = +inputCadence.value;
+      workout = new Running(distance, duration, [lat, lng], cadence);
+      this.#workout.push(workout);
+      console.log(workout);
+    }
     // 若使用者選取的是 cycling，建立新物件
     if (type === "cycling") {
       const elev = +inputElevation.value;
